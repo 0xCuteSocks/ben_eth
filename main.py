@@ -5,13 +5,14 @@ from ens import AsyncENS
 import pandas as pd
 
 
-w3 = AsyncWeb3(AsyncHTTPProvider(""))
+w3 = AsyncWeb3(AsyncHTTPProvider("https://mainnet.infura.io/v3/e04c2624b2814f9499cf97067d1651a7"))
 ns = AsyncENS.from_web3(w3)
 df = pd.read_csv("download-query_run_results.csv")
+df = df.sort_values(by="BLOCK_NUMBER").reset_index(drop=True)
 res = []
 
 
-@Semaphore(10)
+@Semaphore(50)
 async def run(i):
     data = df.iloc[i].copy()
     addr = data["ETH_FROM_ADDRESS"]
@@ -30,7 +31,7 @@ async def run(i):
 async def main():
     await asyncio.gather(*[run(i) for i in range(df.shape[0])])
     df_new = pd.DataFrame(res)
-    df_new.to_csv("ben_eth_ens.csv")
+    df_new.to_csv("ben_eth_ens2.csv")
 
 
 if __name__ == "__main__":
